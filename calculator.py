@@ -411,6 +411,9 @@ def getResult():
     """!@brief Vyhodnoti matematicky problem a v pripade spravneho zadani prikladu vypise vysledek na display.
     """
     global string, isResult, memButtons, system
+    if (isResult):
+        stack.clear()
+        isResult = False
     array = re.split(" ", string.get())
     array = filter(None, array)
     array.append("$")
