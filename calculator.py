@@ -346,14 +346,15 @@ def appendText(text):
     """
     global isResult, string, memButtons
     if (isResult):
-        memButtons[2].config(state = DISABLED)
+        """memButtons[2].config(state = DISABLED)
         stack.clear()
         if (isNumber(text) or text == "(" or ((text in scientificButtonsName) and not text == " ! ")):
             string.set(text)
         else:
-            string.set("0")
+            string.set("0")"""
+        stack.clear()
         isResult = False
-        return
+        #return
     tmp = string.get()
     if ((tmp[-1] == "0") and (re.search("\d", text) or re.search("[a|b|c|d|e|f]", text))):
         if (len(tmp) > 1):
