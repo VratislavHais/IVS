@@ -4,6 +4,7 @@
     Documentation for this module.
      
      More details.
+     
 """
 import math
 import re
@@ -97,6 +98,20 @@ class Stack:
         return False
 
 
+def errWindow(text):
+    """!@brief Vytvori okno s chybovou hlaskou.
+       @param text Chybova hlaska ktera se ma zobrazit.
+    """
+    stack.clear()
+    box.showerror("Error", text)
+    
+    
+def infoWindow(label, text):
+    """!@brief Vytvori okno s infem.
+       @param label Pojmenovani okna.
+       @param text Zobrazovany text.
+    """
+    box.showinfo(label, text)
     
     
 def factorial(value):
@@ -114,9 +129,9 @@ def factorial(value):
 def isNumber(string):
     """!@brief Funkce na zjisteni, zda je retezec cislo.
        @param string Retezec, u ktereho to potrebujeme zjistit.
-    """    
+    """ 
     try:
-        float(string)
+        int(string, 16)
         return True
     except:
         return False
@@ -184,7 +199,6 @@ def solveProblem(problem, stack, precTable):
         @param stack Zasobnik.
         @param precTable Precedencni tabulka tvorena dvojrozmernym polem
     """
-    global system    
     index = 0
     for i in problem:
         retVal = "a"
@@ -239,7 +253,7 @@ def appendText(text):
     global isResult, string
     if (isResult):
         stack.clear()
-        if (isNumber(text) or text == "(" or ((text in scientificButtonsName) and not text == " ! ")):
+        if (isNumber(text) or text == "("):
             string.set(text)
         else:
             string.set("0")
@@ -254,7 +268,7 @@ def appendText(text):
                 string.set(tmp + text)
         else:
             string.set(text)
-    elif ((re.search("\s0$", tmp) or re.search("^0$", tmp)) and ((text in scientificButtonsName) or (text == " ( ")) and (not text == "!")):
+    elif ((re.search("\s0$", tmp) or re.search("^0$", tmp))):
         string.set(tmp[:-1] + text)
     else:
         string.set(tmp + text) 
@@ -264,7 +278,7 @@ def insertDot():
     """
     global string
     if (re.search("\d+\.\d*$", string.get())):
-        print "chyba"
+        errWindow("Do desetinneho cisla neni mozne\n pridat desetinnou tecku!")
         return False
     elif (re.search("\d$", string.get())):
         appendText(".")
@@ -287,7 +301,7 @@ def negation():
         tmp[-1] = "-" + tmp[-1]
         string.set(" ".join(tmp))
     else:
-        print "chyba"
+        errWindow("Obratit znamenko se da pouze u cisla")
         return False
         
 def clear():
@@ -307,7 +321,7 @@ def getResult():
     stack.push("$")
     tmp = solveProblem(array, stack, precTable)
     if (not tmp):
-        print "chyba"
+        errWindow("Chybny vyraz!")
     elif (tmp == 2):
         return
     else:
@@ -322,7 +336,7 @@ def getResult():
 def delete():
     """!@brief Smazani znaku (ci funkce) z displaye.
     """
-    global string, system, isResult
+    global string, isResult
     if (isResult):
         string.set("0")
         isResult = False
@@ -331,10 +345,7 @@ def delete():
         tmp = tmp.split(" ")
         tmp = filter(None, tmp)
         try:
-            if (system == 16):
-                int(tmp[-1], 16)
-            else:
-                float(tmp[-1])
+            float(tmp[-1])
             tmp[-1] = tmp[-1][:-1]
         except:
             del tmp[-1]
@@ -344,8 +355,16 @@ def delete():
         except:
             tmp = "0"
         string.set(" ".join(tmp))
-  
+    
+def basic():
+   
+   
+        
+                    
 
+window = Tk()
+window.title("Calculator")
+window.resizable(width = False, height = False)
 isResult = False   
 stack = Stack()
 #                  +    -     *    /    ^  sin  cos  tan  cotg log  ln    id  (     )    $
@@ -367,3 +386,40 @@ precTable = {"+":[">", ">", "<", "<", "<", "<", "<", "<", "<", "<", "<", "<", "<
              
 string = StringVar()             
 string.set("0")
+mainMenu = Menu(window)
+menuCalculator = Menu(mainMenu, tearoff = 0)
+menuCalculator.add_command(label="Basic", command = basic)
+mainMenu.add_cascade(label="Settings", menu=menuCalculator)
+
+window.config(menu=mainMenu)
+
+problemResultLabel = Label(window, textvariable = string, font=("times new roman bold", 12), anchor = E, bg="white", width = 20)
+problemResultLabel.grid(row = 0, column = 0, pady=3, columnspan = 7, sticky = W + E)
+buttonNames = [" ( ", " ) ", " ^ ", " / ", "7", "8", "9", " * ", "4", "5", "6", " - ", "1", "2", "3", " + ", "0", ".", "+/-", "C", "=", "←"]
+buttons = []
+counter = 0
+for row in range(4):
+    for col in range(4):
+        buttons.append(Button(window, text = buttonNames[4 * row + col], width = 5, height = 1, command = lambda name=buttonNames[4*row + col]:appendText(name)))
+        buttons[counter].grid(row = (row + 1), column = col, sticky = W + E)
+        counter += 1
+buttons.append(Button(window, text = buttonNames[16], width = 5, height = 1, command = lambda name=buttonNames[16]:appendText(name)))
+buttons[counter].grid(row = 5, column = 0, columnspan = 2, sticky = W + E)
+counter += 1
+buttons.append(Button(window, text = buttonNames[17], width = 5, height = 1, command = insertDot))
+buttons[counter].grid(row = 5, column = 2, sticky = W + E)
+counter += 1
+buttons.append(Button(window, text = buttonNames[18], width = 5, height = 1, command = negation))
+buttons[counter].grid(row = 5, column = 3, sticky = W + E)
+counter += 1
+buttons.append(Button(window, text = buttonNames[19], width = 3, height = 3, command = clear))
+buttons[counter].grid(row = 2, column = 6, sticky = W + E + S + W, rowspan = 2)
+counter += 1
+buttons.append(Button(window, text = buttonNames[20], width = 3, height = 3, command = getResult))
+buttons[counter].grid(row = 4, column = 6, sticky = W + E + S + W, rowspan = 2)
+counter += 1
+buttons.append(Button(window, text = buttonNames[21], width = 3, height = 1, command = delete))
+buttons[counter].grid(row = 1, column = 6, sticky = W + E + S + W)
+
+
+window.mainloop()
