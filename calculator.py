@@ -116,6 +116,7 @@ def decimal():
     """!@brief prepne kalkulacku na zaklani, odemkne veskera tlacitka a oddela tlacitka pro hexadecimalni soustavu.
     """
     global system, hexButtons, buttons, string, memory, isResult, memButtons
+    stack.clear()    
     memButtons[2].config(state = DISABLED)
     isResult = False
     string.set("0")
@@ -148,6 +149,7 @@ def hexadecimal():
     Kalkulacka pocita s hexadecimalnimi cisly
     """
     global system, buttons, hexButtons, buttons, string, memory, isResult, memButtons
+    stack.clear()    
     memButtons[2].config(state = DISABLED)    
     isResult = False
     string.set("0")
@@ -174,6 +176,7 @@ def binary():
     """!@brief prepne kalkulacku na zakladni a zamkne zakazana tlacitka. Kalkulacka pocita s binarnimy cisly
     """
     global system, buttons, hexButtons, string, memory, isResult, memButtons
+    stack.clear()    
     isResult = False
     string.set("0")
     memory = ""
