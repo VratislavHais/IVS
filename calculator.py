@@ -113,7 +113,6 @@ def infoWindow(label, text):
     box.showinfo(label, text)
     
     
-    
 def factorial(value):
     """!@brief Funkce na vypocet faktorialu.
        @param value Hodnota, jejiz faktorial pozadujeme.
@@ -129,7 +128,7 @@ def factorial(value):
 def isNumber(string):
     """!@brief Funkce na zjisteni, zda je retezec cislo.
        @param string Retezec, u ktereho to potrebujeme zjistit.
-    """  
+    """   
     try:
         float(string)
         return True
@@ -251,8 +250,9 @@ def appendText(text):
     """!@brief Funkce slouzici k pripojeni textu pro vypis na "display" kalkulacky.
         @param text Obsahuje text ktery se ma vypsat na "display".
     """
-    global isResult, string
+    global isResult, string, memButtons
     if (isResult):
+        memButtons[2].config(state = DISABLED)
         stack.clear()
         if (isNumber(text) or text == "(" or ((text in scientificButtonsName) and not text == " ! ")):
             string.set(text)
@@ -261,7 +261,7 @@ def appendText(text):
         isResult = False
         return
     tmp = string.get()
-    if ((tmp[-1] == "0") and (re.search("\d", text))):
+    if ((tmp[-1] == "0") and (re.search("\d", text) or re.search("[a|b|c|d|e|f]", text))):
         if (len(tmp) > 1):
             if (tmp[-2] == " "):
                 string.set(tmp[:-1] + text)
@@ -315,7 +315,7 @@ def clear():
 def getResult():
     """!@brief Vyhodnoti matematicky problem a v pripade spravneho zadani prikladu vypise vysledek na display.
     """
-    global string, isResult
+    global string, isResult, memButtons
     array = re.split(" ", string.get())
     array = filter(None, array)
     array.append("$")
@@ -330,6 +330,7 @@ def getResult():
             errWindow("Chybny vyraz!")
             stack.clear()
         else:
+            memButtons[2].config(state = NORMAL)
             isResult = True
             result = str(stack.top())
             string.set(result)
@@ -499,6 +500,17 @@ def helpMe():
     Label(top, text = "BMI", fg = "green", font=("times new roman bold", 14), justify = CENTER).grid(row = 2, column = 0)
     Label(top, text = bmi, justify = LEFT).grid(row = 3, column = 0)
 
+def memClear():
+    global memory
+    memory = ""
+    
+def memSet():
+    global memory, string
+    memory = string.get() + " "    
+    
+def memRecal():
+    global memory
+    appendText(memory)
     
 
 window = Tk()
@@ -529,6 +541,11 @@ mainMenu = Menu(window)
 menuCalculator = Menu(mainMenu, tearoff = 0)
 menuCalculator.add_command(label="Basic", command = basic)
 menuCalculator.add_command(label="Scientific", command = scientific)
+menuCalculator.add_separator()
+menuCalculator.add_command(label="Decimal", command = decimal)
+menuCalculator.add_command(label="Octal", command = octal)
+menuCalculator.add_command(label="Hexadecimal", command = hexadecimal)
+menuCalculator.add_command(label="Binary", command = binary)
 menuCalculator.add_separator()
 menuCalculator.add_command(label="Exit", command = window.destroy)
 mainMenu.add_cascade(label="Settings", menu=menuCalculator)
@@ -567,12 +584,29 @@ buttons[counter].grid(row = 4, column = 6, sticky = W + E + S + W, rowspan = 2)
 counter += 1
 buttons.append(Button(window, text = buttonNames[21], width = 3, height = 1, command = delete))
 buttons[counter].grid(row = 1, column = 6, sticky = W + E + S + W)
+memory = ""
+memButtons = []
+memButtons.append(Button(window, text = "MR", width = 3, height = 1, command = memRecal))
+memButtons[0].grid(row = 8, column = 2, sticky = W + E + S + W)
+memButtons.append(Button(window, text = "MC", width = 3, height = 1, command = memClear))
+memButtons[1].grid(row = 8, column = 1, sticky = W + E + S + W)
+memButtons.append(Button(window, text = "MS", width = 3, height = 1, command = memSet, state = DISABLED))
+memButtons[2].grid(row = 8, column = 3, sticky = W + E + S + W)
+
 
 for i in scientificButtonsName:
     scientificButtons.append(Button(window, text = i, width = 5, height = 1, command = lambda name=i:appendText(name)))
 scientificButtons.append(Button(window, text = "e", width = 5, height = 1, command = lambda name = " 2.71828 ":appendText(name)))
 scientificButtons.append(Button(window, text = "π", width = 5, height = 1, command = lambda name = " 3.14159 ":appendText(name)))
 scientificButtons.append(Button(window, text = "graph", width = 5, height = 1, command = graf, state = DISABLED))
+
+hexButtons = []
+hexButtons.append(Button(window, text = "A", width = 5, height = 1, command = lambda name = "a":appendText(name)))
+hexButtons.append(Button(window, text = "B", width = 5, height = 1, command = lambda name = "b":appendText(name)))
+hexButtons.append(Button(window, text = "C", width = 5, height = 1, command = lambda name = "c":appendText(name)))
+hexButtons.append(Button(window, text = "D", width = 5, height = 1, command = lambda name = "d":appendText(name)))
+hexButtons.append(Button(window, text = "E", width = 5, height = 1, command = lambda name = "e":appendText(name)))
+hexButtons.append(Button(window, text = "F", width = 5, height = 1, command = lambda name = "f":appendText(name)))
 
 
 window.mainloop()
