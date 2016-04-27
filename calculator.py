@@ -112,6 +112,91 @@ def infoWindow(label, text):
     """
     box.showinfo(label, text)
     
+def decimal():
+    """!@brief prepne kalkulacku na zaklani, odemkne veskera tlacitka a oddela tlacitka pro hexadecimalni soustavu.
+    """
+    global system, hexButtons, buttons, string, memory, isResult, memButtons
+    memButtons[2].config(state = DISABLED)
+    isResult = False
+    string.set("0")
+    memory = ""
+    if (system == 16):
+        for i in hexButtons:
+            i.grid_forget()
+    system = 10
+    for i in buttons:
+        i.config(state = NORMAL)
+
+def octal():
+    """!@brief prepne kalkulacku na zakladni a zamkne zakazana tlacitka. Kalkulacka pocita s cisly z osmickove soustavy
+    """
+    global system, buttons
+    decimal()
+    basic()
+    system = 8
+    buttons[0].config(state = DISABLED)
+    buttons[1].config(state = DISABLED)
+    buttons[2].config(state = DISABLED)
+    buttons[5].config(state = DISABLED)
+    buttons[6].config(state = DISABLED)
+    buttons[17].config(state = DISABLED)
+    buttons[18].config(state = DISABLED)
+    
+
+def hexadecimal():
+    """!@brief prepne kalkulacku na zakladni, zamkne zakazana tlacitka a prida tlacitka na hexadecimalni hodnoty. 
+    Kalkulacka pocita s hexadecimalnimi cisly
+    """
+    global system, buttons, hexButtons, buttons, string, memory, isResult, memButtons
+    memButtons[2].config(state = DISABLED)    
+    isResult = False
+    string.set("0")
+    memory = ""
+    row = 6
+    col = 0
+    system = 16
+    basic()
+    for i in buttons:
+        i.config(state = NORMAL)
+    buttons[0].config(state = DISABLED)
+    buttons[1].config(state = DISABLED)
+    buttons[2].config(state = DISABLED)
+    buttons[17].config(state = DISABLED)
+    buttons[18].config(state = DISABLED)
+    for i in hexButtons:
+        i.grid(row = row, column = col, sticky = W+E+S)
+        col += 1
+        if (col > 3):
+            col = 0
+            row += 1
+
+def binary():
+    """!@brief prepne kalkulacku na zakladni a zamkne zakazana tlacitka. Kalkulacka pocita s binarnimy cisly
+    """
+    global system, buttons, hexButtons, string, memory, isResult, memButtons
+    isResult = False
+    string.set("0")
+    memory = ""
+    memButtons[2].config(state = DISABLED)
+    if (system == 16):
+        for i in hexButtons:
+            i.grid_forget()
+    system = 2
+    basic()
+    buttons[0].config(state = DISABLED)
+    buttons[1].config(state = DISABLED)
+    buttons[2].config(state = DISABLED)
+    buttons[4].config(state = DISABLED)
+    buttons[5].config(state = DISABLED)
+    buttons[6].config(state = DISABLED)
+    buttons[8].config(state = DISABLED)
+    buttons[9].config(state = DISABLED)
+    buttons[10].config(state = DISABLED)
+    buttons[13].config(state = DISABLED)
+    buttons[14].config(state = DISABLED)
+    buttons[18].config(state = DISABLED)
+    buttons[17].config(state = DISABLED)
+
     
 def factorial(value):
     """!@brief Funkce na vypocet faktorialu.
@@ -501,14 +586,20 @@ def helpMe():
     Label(top, text = bmi, justify = LEFT).grid(row = 3, column = 0)
 
 def memClear():
+    """!@brief Vycisti ulozenou hodnotu z pameti.
+    """
     global memory
     memory = ""
     
 def memSet():
+    """!@brief Ulozi vysledek do pameti.
+    """
     global memory, string
     memory = string.get() + " "    
     
 def memRecal():
+    """!@brief Vybere vysledek z pameti a vlozi na display
+    """
     global memory
     appendText(memory)
     
@@ -593,6 +684,7 @@ memButtons[1].grid(row = 8, column = 1, sticky = W + E + S + W)
 memButtons.append(Button(window, text = "MS", width = 3, height = 1, command = memSet, state = DISABLED))
 memButtons[2].grid(row = 8, column = 3, sticky = W + E + S + W)
 
+system = 10
 
 for i in scientificButtonsName:
     scientificButtons.append(Button(window, text = i, width = 5, height = 1, command = lambda name=i:appendText(name)))
