@@ -4,7 +4,6 @@
     Documentation for this module.
      
      More details.
-     
 """
 import math
 import re
@@ -114,6 +113,7 @@ def infoWindow(label, text):
     box.showinfo(label, text)
     
     
+    
 def factorial(value):
     """!@brief Funkce na vypocet faktorialu.
        @param value Hodnota, jejiz faktorial pozadujeme.
@@ -129,9 +129,9 @@ def factorial(value):
 def isNumber(string):
     """!@brief Funkce na zjisteni, zda je retezec cislo.
        @param string Retezec, u ktereho to potrebujeme zjistit.
-    """ 
+    """  
     try:
-        int(string, 16)
+        float(string)
         return True
     except:
         return False
@@ -198,7 +198,7 @@ def solveProblem(problem, stack, precTable):
         @param problem Obsahuje matematicky vyraz zadany uzivatelem.
         @param stack Zasobnik.
         @param precTable Precedencni tabulka tvorena dvojrozmernym polem
-    """
+    """   
     index = 0
     for i in problem:
         retVal = "a"
@@ -241,6 +241,7 @@ def solveProblem(problem, stack, precTable):
         while (retVal == "a"):
             retVal = evalRule(index, stack, precTable, i)            
         if (not retVal):
+            #nejaka pekna chybova hlaska -> nemelo by k tomu dojit
             return False
         elif (retVal == 2):
             return 2
@@ -253,7 +254,7 @@ def appendText(text):
     global isResult, string
     if (isResult):
         stack.clear()
-        if (isNumber(text) or text == "("):
+        if (isNumber(text) or text == "(" or ((text in scientificButtonsName) and not text == " ! ")):
             string.set(text)
         else:
             string.set("0")
@@ -268,7 +269,7 @@ def appendText(text):
                 string.set(tmp + text)
         else:
             string.set(text)
-    elif ((re.search("\s0$", tmp) or re.search("^0$", tmp))):
+    elif ((re.search("\s0$", tmp) or re.search("^0$", tmp)) and ((text in scientificButtonsName) or (text == " ( ")) and (not text == "!")):
         string.set(tmp[:-1] + text)
     else:
         string.set(tmp + text) 
@@ -357,10 +358,148 @@ def delete():
         string.set(" ".join(tmp))
     
 def basic():
-   
-   
+    """!@brief Slouzi ke skryti tlacitek z vedecke kalkulacky.
+    """
+    global scientificButtons, buttons
+    for i in scientificButtons:
+        i.grid_forget()
         
-                    
+        
+def scientific():
+    """!@brief Zobrazi tlacitka vedecke kalkulacky.
+    """
+    global scientificButtons, buttons
+    decimal()
+    col = 4
+    row = 1
+    for i in scientificButtons:
+        i.grid(row = row, column = col, sticky = W + E)
+        row += 1
+        if (row > 5):
+            row = 1
+            col += 1
+            
+def evalGraf(axisX, axisY):   
+    """!@brief Vykresli graf ze zadanych hodnot.
+        @param axisX Uzivatelem zadane hodnoty osy x.
+        @param axisY Uzivatelem zadane hodnoty osy y.
+    """       
+    pass    
+    """plt.xlabel("x"+r"$ \rightarrow $")
+    plt.ylabel("y"+r"$ \rightarrow $")
+    axisX = axisX.split(",")
+    axisY = axisY.split(",")
+    try:
+        xAxis = []
+        for i in axisX:
+            xAxis.append(float(i))
+        yAxis = []
+        for i in axisY:
+            yAxis.append(float(i))
+        plt.plot(xAxis, yAxis)
+        plt.show()
+    except:
+        errWindow("Chybny vstup!")
+        return False"""
+        
+def graf():
+    """!@brief Otevre okno pro zadavani hodnot na vykresleni grafu
+    """
+    top = Toplevel()
+    top.title("Graph")
+    top.focus_set()
+    Label(top, text = "Zadejte hodnoty na ose x:").grid(row = 0, column = 0)
+    Label(top, text = "Zadejte hodnoty na ose y:").grid(row = 2, column = 0)
+    entryX = Entry(top)
+    entryX.grid(row = 1, column = 0)
+    entryY = Entry(top)
+    entryY.grid(row = 3, column = 0)
+    Button(top, text="OK", command = lambda: evalGraf(entryX.get(), entryY.get())).grid(row = 4, column = 0)
+
+def calculateBMI(mass, height):
+    """!@brief Vypocita BMI z uzivatelem zadanych hodnot
+        @param mass Uzivatelem zadana vaha
+        @param height Uzivatelem zadana vyska
+    """
+    if (not isNumber(mass)):
+        errWindow("Hmotnost musi byt cislo")
+        return
+    if (not isNumber(height)):
+        errWindow("Vyska musi byt cislo")
+        return
+    mass = float(mass)
+    height = float(height) / 100
+    if (mass <= 0 or height <= 0):
+        errWindow("Vyska i vaha musi byt vetsi nez 0")
+        return
+    result = mass / (height * height)
+    if (result < 18.5):
+        infoWindow("podvaha", "Kategorie:\tpodvaha\nZdravotni rizika:\tvysoka")
+        return
+    elif (result < 25):
+        infoWindow("norma", "Kategorie:\tnorma\nZdravotni rizika:\tminimalni")
+        return
+    elif (result < 30):
+        infoWindow("nadvaha", "Kategorie:\tnadvaha\nZdravotni rizika:\tnizka az lehce vyssi")
+        return
+    elif (result < 35):
+        infoWindow("obezita 1. stupne", "Kategorie:\tobezita 1. stupne\nZdravotni rizika:\tzvysena")
+        return
+    elif (result < 40):
+        infoWindow("obezita 2. stupne", "Kategorie:\tobezita 2. stupne\nZdravotni rizika:\tvysoka")
+        return
+    else:
+        infoWindow("obezita 3. stupne", "Kategorie:\tobezita 3. stupne\nZdravotni rizika:\tvelmi vysoka")
+        return
+        
+    
+
+def bodyMassIndex():
+    """!@brief Otevre okno pro zadavani hodnot na vypocet BMI
+    """
+    top = Toplevel()
+    top.title("BMI")
+    top.focus_set()
+    Label(top, text = "Vyska: ").grid(row = 0, column = 0)
+    Label(top, text = "cm").grid(row = 0, column = 3)
+    Label(top, text = "Hmotnost :").grid(row = 1, column = 0)
+    Label(top, text = "kg").grid(row = 1, column = 3)
+    Label(top).grid(row = 2, column = 2)
+    entryMass = Entry(top)
+    entryMass.grid(row = 1, column = 2)
+    entryHeight = Entry(top)
+    entryHeight.grid(row = 0, column = 2)
+    Button(top, text="OK", command = lambda: calculateBMI(entryMass.get(), entryHeight.get())).grid(row = 3, column = 0, columnspan = 3)
+
+def helpMe():
+    """!@brief Vypise napovedu
+    """
+    msg = "kalkulacka zvlada zpracovani slozitejsich vyrazu predem definovanych matematickych funkci.\n"
+    msg += "Basic -> obsahuje zakladni matematicke funkce:\n"
+    msg += "\t+ -> soucet cisel\n\t- -> rozdil dvou cisel\n\t* -> vynasobeni dvou cisel\n"
+    msg += "\t/ -> podil dvou cisel\n\t^ -> umocneni (cislo ^ mocnina)\n\t() -> klasicke zavorky\n"
+    msg += "\nScientific -> obsahuje zakladni a rozsirene matematicke funkce + 2 konstanty:\n"
+    msg += "\tsin -> sinus cisla\n\tcos -> cosinus cisla\n\ttan -> tangens cisla\n\tcotg -> cotangens cisla\n"
+    msg += "\tlog -> logaritmus o zakladu 10 z cisla\n\tln -> prirozeny logaritmus cisla\n\t"
+    msg += "e -> eulerovo cislo (2.71828)\n\tπ -> ludolfovo cislo (3.14159)\n\t"
+    msg += "graph -> vyskoci okno, do ktereho se zadaji hodnoty os x a y. Po stisknuti OK se vykresli graf\n"
+    bmi = "\tBMI\t\tKategorie\t\tZdravotni rizika\n"
+    bmi += "\t<18.5\t\tpodvaha\t\tvysoka\n"
+    bmi += "\t18.5 - 24.9\tnorma\t\tminimalni\n"
+    bmi += "\t25.0 - 29.9\tnadvaha\t\tnizka az lehce vyssi\n"
+    bmi += "\t30.0 - 34.9\tobezita 1. stupne\tzvysena\n"
+    bmi += "\t35.0 - 39.9\tobezita 2. stupne\tvysoka\n"
+    bmi += "\t>40\t\tobezita 3. stupne\tvelmi vysoka"
+    #infoWindow("Help", msg)
+    top = Toplevel()
+    top.title("Help")
+    top.focus_set()
+    Label(top, text = "Kalkulacka", fg = "green", font=("times new roman bold", 14), justify = CENTER).grid(row = 0, column = 0)
+    Label(top, text=msg, justify = LEFT).grid(row = 1, column = 0)
+    Label(top, text = "BMI", fg = "green", font=("times new roman bold", 14), justify = CENTER).grid(row = 2, column = 0)
+    Label(top, text = bmi, justify = LEFT).grid(row = 3, column = 0)
+
+    
 
 window = Tk()
 window.title("Calculator")
@@ -389,14 +528,22 @@ string.set("0")
 mainMenu = Menu(window)
 menuCalculator = Menu(mainMenu, tearoff = 0)
 menuCalculator.add_command(label="Basic", command = basic)
+menuCalculator.add_command(label="Scientific", command = scientific)
+menuCalculator.add_separator()
+menuCalculator.add_command(label="Exit", command = window.destroy)
 mainMenu.add_cascade(label="Settings", menu=menuCalculator)
+
+mainMenu.add_command(label="BMI", command = bodyMassIndex)
+mainMenu.add_command(label = "Help", command = helpMe)
 
 window.config(menu=mainMenu)
 
 problemResultLabel = Label(window, textvariable = string, font=("times new roman bold", 12), anchor = E, bg="white", width = 20)
 problemResultLabel.grid(row = 0, column = 0, pady=3, columnspan = 7, sticky = W + E)
 buttonNames = [" ( ", " ) ", " ^ ", " / ", "7", "8", "9", " * ", "4", "5", "6", " - ", "1", "2", "3", " + ", "0", ".", "+/-", "C", "=", "←"]
+scientificButtonsName = [" sin ", " cos ", " tan ", " cotg ", " ! ", " log ", " ln "]
 buttons = []
+scientificButtons = []
 counter = 0
 for row in range(4):
     for col in range(4):
@@ -420,6 +567,12 @@ buttons[counter].grid(row = 4, column = 6, sticky = W + E + S + W, rowspan = 2)
 counter += 1
 buttons.append(Button(window, text = buttonNames[21], width = 3, height = 1, command = delete))
 buttons[counter].grid(row = 1, column = 6, sticky = W + E + S + W)
+
+for i in scientificButtonsName:
+    scientificButtons.append(Button(window, text = i, width = 5, height = 1, command = lambda name=i:appendText(name)))
+scientificButtons.append(Button(window, text = "e", width = 5, height = 1, command = lambda name = " 2.71828 ":appendText(name)))
+scientificButtons.append(Button(window, text = "π", width = 5, height = 1, command = lambda name = " 3.14159 ":appendText(name)))
+scientificButtons.append(Button(window, text = "graph", width = 5, height = 1, command = graf, state = DISABLED))
 
 
 window.mainloop()
