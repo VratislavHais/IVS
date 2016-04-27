@@ -196,7 +196,7 @@ def binary():
     buttons[14].config(state = DISABLED)
     buttons[18].config(state = DISABLED)
     buttons[17].config(state = DISABLED)
-
+    
     
 def factorial(value):
     """!@brief Funkce na vypocet faktorialu.
@@ -213,9 +213,13 @@ def factorial(value):
 def isNumber(string):
     """!@brief Funkce na zjisteni, zda je retezec cislo.
        @param string Retezec, u ktereho to potrebujeme zjistit.
-    """   
+    """
+    global system    
     try:
-        float(string)
+        if (system != 16):
+            float(string)
+        else:
+            int(string, 16)
         return True
     except:
         return False
@@ -282,7 +286,8 @@ def solveProblem(problem, stack, precTable):
         @param problem Obsahuje matematicky vyraz zadany uzivatelem.
         @param stack Zasobnik.
         @param precTable Precedencni tabulka tvorena dvojrozmernym polem
-    """   
+    """
+    global system    
     index = 0
     for i in problem:
         retVal = "a"
@@ -309,8 +314,12 @@ def solveProblem(problem, stack, precTable):
         elif (i == "ln"):
             index = 10
         elif (isNumber(i)):
-            stack.push(float(i))
-            continue
+            if (system == 10):
+                stack.push(float(i))
+                continue
+            else:
+                stack.push(int(i, system))
+                continue
         elif (i == "("):
             index = 12
         elif (i == ")"):
@@ -400,7 +409,7 @@ def clear():
 def getResult():
     """!@brief Vyhodnoti matematicky problem a v pripade spravneho zadani prikladu vypise vysledek na display.
     """
-    global string, isResult, memButtons
+    global string, isResult, memButtons, system
     array = re.split(" ", string.get())
     array = filter(None, array)
     array.append("$")
@@ -418,12 +427,22 @@ def getResult():
             memButtons[2].config(state = NORMAL)
             isResult = True
             result = str(stack.top())
+            if (system != 10):
+                if (system == 2):
+                    result = int(result)
+                    result = format(result, 'b')
+                elif (system == 8):
+                    result = int(result)
+                    result = format(result, 'o')
+                else:
+                    result = int(result)
+                    result = format(result, 'x')
             string.set(result)
         
 def delete():
     """!@brief Smazani znaku (ci funkce) z displaye.
     """
-    global string, isResult
+    global string, system, isResult
     if (isResult):
         string.set("0")
         isResult = False
@@ -432,7 +451,10 @@ def delete():
         tmp = tmp.split(" ")
         tmp = filter(None, tmp)
         try:
-            float(tmp[-1])
+            if (system == 16):
+                int(tmp[-1], 16)
+            else:
+                float(tmp[-1])
             tmp[-1] = tmp[-1][:-1]
         except:
             del tmp[-1]
