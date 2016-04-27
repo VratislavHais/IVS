@@ -466,7 +466,7 @@ def delete():
         except:
             del tmp[-1]
         try:    
-            if (tmp[0] == "" or tmp[0] == "("):
+            if (tmp[0] == "" or (tmp[0] == "(" and not len(tmp) > 1)):
                 tmp = "0"
         except:
             tmp = "0"
